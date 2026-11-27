@@ -1,22 +1,13 @@
-name: build-polaris-ksu
+﻿name: build-polaris-ksu
 on:
   workflow_dispatch:
-    inputs:
-      src_url:
-        description: kernel source url
-        default: https://github.com/MiCode/Xiaomi_Kernel_OpenSource.git
-      src_branch:
-        description: branch
-        default: polaris-o-oss
-      defconfig:
-        description: defconfig name
-        default: polaris_user_defconfig
-      ksu_branch:
-        description: SukiSU branch
-        default: builtin
-      out_name:
-        description: artifact name
-        default: boot_sukisu
+env:
+  SRC_URL: https://github.com/MiCode/Xiaomi_Kernel_OpenSource.git
+  SRC_BRANCH: polaris-o-oss
+  DEFCONFIG: polaris_user_defconfig
+  KSU_BRANCH: builtin
+  OUT_NAME: boot_sukisu
+  WITH_KPM: "0"
 jobs:
   build:
     runs-on: ubuntu-22.04
@@ -36,55 +27,66 @@ jobs:
           set -x
           git clone --depth 1 https://github.com/LineageOS/android_prebuilts_clang_kernel_linux-x86_clang-r416183b tc/clang -q \
             || git clone --depth 1 https://github.com/Jacksonzwang/android_prebuilts_clang_kernel_linux-x86_clang-r383902 tc/clang -q
-          du -sh tc/clang
           tc/clang/bin/clang --version
       - name: Clone kernel source
         run: |
-          git clone --depth 1 -b ${{ inputs.src_branch }} ${{ inputs.src_url }} ksrc
+          git clone --depth 1 -b $SRC_BRANCH $SRC_URL ksrc
           cd ksrc && git log --oneline -1
       - name: Integrate SukiSU driver
         run: |
           set -e
           cd ksrc
-          git clone --depth 1 -b ${{ inputs.ksu_branch }} https://github.com/SukiSU-Nova/SukiSU-Nova KernelSU -q
+          git clone --depth 1 -b $KSU_BRANCH https://github.com/SukiSU-Nova/SukiSU-Nova KernelSU -q
           cd drivers
-          ln -sf ../KernelSU/kernel kernelsu
-          grep -q kernelsu Makefile || printf '\nobj-$(CONFIG_KSU) += kernelsu/\n' >> Makefile
+          ln -sfn ../KernelSU/kernel kernelsu
+          grep -q 'CONFIG_KSU' Makefile || printf '\nobj-$(CONFIG_KSU) += kernelsu/\n' >> Makefile
           grep -q 'drivers/kernelsu/Kconfig' Kconfig || sed -i '/endmenu/i source "drivers/kernelsu/Kconfig"' Kconfig
           cd $GITHUB_WORKSPACE/ksrc
-          curl -fsSL -o /tmp/ksu49.patch https://raw.githubusercontent.com/SukiSU-Nova/SukiSU_patch/main/4.9/4.9_syscall_hooks.patch
-          patch -p1 --no-backup-if-mismatch < /tmp/ksu49.patch || { echo HOOK_PATCH_FAILED; patch -p1 --dry-run < /tmp/ksu49.patch; }
+          python3 $GITHUB_WORKSPACE/scripts/patch_ksu49.py .
           echo INTEGRATION_DONE
       - name: Configure
         run: |
           set -e
           cd ksrc
           export PATH=$GITHUB_WORKSPACE/tc/clang/bin:$PATH
-          make O=out ARCH=arm64 CC=clang CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=aarch64-linux-gnu- ${{ inputs.defconfig }}
-          ./scripts/config --file out/.config -e KSU -e KSU_MANUAL_HOOK -e KPROBES -e TMPFS_XATTR -e OVERLAY_FS -e SECURITY_SELINUX -d KSU_DEBUG
+          make O=out ARCH=arm64 CC=clang CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=aarch64-linux-gnu- $DEFCONFIG
+          ARGS=""
+          if [ "$WITH_KPM" = "1" ]; then ARGS="-e KPM -e KALLSYMS -e KALLSYMS_ALL"; fi
+          ./scripts/config --file out/.config -e KSU -e KPROBES -e TMPFS_XATTR -e OVERLAY_FS -e SECURITY_SELINUX -d KSU_DEBUG $ARGS
           make O=out ARCH=arm64 CC=clang CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=aarch64-linux-gnu- olddefconfig
-          grep -E 'CONFIG_KSU|CONFIG_KPROBES|CONFIG_TMPFS_XATTR|CONFIG_OVERLAY_FS' out/.config
+          grep -E 'CONFIG_KSU|CONFIG_KPM|CONFIG_KPROBES|CONFIG_TMPFS_XATTR|CONFIG_OVERLAY_FS|CONFIG_SECURITY_SELINUX=' out/.config
       - name: Build kernel
         run: |
           set -o pipefail
           cd ksrc
           export PATH=$GITHUB_WORKSPACE/tc/clang/bin:$PATH
-          make -j$(nproc) O=out ARCH=arm64 CC=clang CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=aarch64-linux-gnu- Image.gz 2>&1 | tail -100
+          make -j$(nproc) O=out ARCH=arm64 CC=clang CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=aarch64-linux-gnu- Image.gz-dtb 2>&1 | tee ../build.log | tail -150
           ls -la out/arch/arm64/boot/
+      - name: Upload build log on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-log
+          path: build.log
+          if-no-files-found: warn
       - name: Repack boot.img
+        if: success()
         run: |
           set -e
+          cp ksrc/out/arch/arm64/boot/Image.gz-dtb Image.gz-dtb
+          ls -la Image.gz-dtb
           curl -fL -o magisk.apk https://github.com/topjohnwu/Magisk/releases/download/v31.1/Magisk-v31.1.apk
           mkdir -p mbt && unzip -o -j magisk.apk 'lib/x86_64/libmagiskboot.so' -d mbt
           chmod +x mbt/libmagiskboot.so
           mkdir -p work && cd work
-          ../mbt/libmagiskboot.so unpack ../boot_stock.img || true
+          ../mbt/libmagiskboot.so unpack ../boot_stock.img
           ls -la
-          cp ../ksrc/out/arch/arm64/boot/Image kernel
-          ../mbt/libmagiskboot.so repack ../boot_stock.img ../${{ inputs.out_name }}.img || ../mbt/libmagiskboot.so repack -n ../boot_stock.img ../${{ inputs.out_name }}.img
-          ls -la ../${{ inputs.out_name }}.img
+          cp ../Image.gz-dtb kernel
+          ../mbt/libmagiskboot.so repack ../boot_stock.img ../$OUT_NAME.img
+          ls -la ../$OUT_NAME.img
       - uses: actions/upload-artifact@v4
+        if: success()
         with:
-          name: ${{ inputs.out_name }}
-          path: ${{ inputs.out_name }}.img
+          name: boot-artifact
+          path: boot_sukisu.img
           if-no-files-found: error
