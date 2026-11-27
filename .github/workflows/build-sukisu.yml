@@ -23,6 +23,9 @@ jobs:
       - name: Integrate SukiSU-Nova
         working-directory: ksrc
         run: bash "$GITHUB_WORKSPACE/scripts/sukisu_patch.sh" "$GITHUB_WORKSPACE/sukisu"
+      - name: Apply boot-crown fix + debug logging
+        working-directory: ksrc
+        run: python3 "$GITHUB_WORKSPACE/scripts/fix_boot_crown.py" "$PWD"
       - name: Tune config
         working-directory: ksrc
         run: |
@@ -48,6 +51,7 @@ jobs:
           ROOT=$PWD
           TC=$ROOT/.toolchains/aarch64--glibc--stable-2020.02-1/bin/aarch64-linux-
           $TC"gcc" -dumpversion
+          : > .scmversion
           mkdir -p out dist
           cp build-support/config/polaris_ksu.config out/.config
           export KBUILD_BUILD_USER=polaris KBUILD_BUILD_HOST=builder KBUILD_BUILD_VERSION=1
