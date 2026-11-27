@@ -1,0 +1,68 @@
+name: build-polaris-sukisu-nova
+on:
+  workflow_dispatch:
+env:
+  BASE_URL: https://github.com/LingyuMT/MIX2S-KernelSU-Next.git
+  BASE_BRANCH: main
+  SUKISU_URL: https://github.com/SukiSU-Nova/SukiSU-Nova.git
+  SUKISU_BRANCH: builtin
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 300
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install deps
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq build-essential bc bison flex libssl-dev zip unzip git curl python3 cpio rsync device-tree-compiler bzip2 xz-utils
+      - name: Clone kernel tree
+        run: git clone --depth 1 -b "$BASE_BRANCH" "$BASE_URL" ksrc
+      - name: Clone SukiSU-Nova
+        run: git clone --depth 1 -b "$SUKISU_BRANCH" "$SUKISU_URL" sukisu
+      - name: Integrate SukiSU-Nova
+        working-directory: ksrc
+        run: bash "$GITHUB_WORKSPACE/scripts/sukisu_patch.sh" "$GITHUB_WORKSPACE/sukisu"
+      - name: Tune config
+        working-directory: ksrc
+        run: |
+          set -e
+          python3 - <<'PY'
+          import pathlib
+          p = pathlib.Path('build-support/config/polaris_ksu.config')
+          s = p.read_text(encoding='utf-8')
+          s = s.replace('CONFIG_LOCALVERSION="-perf-codex"', 'CONFIG_LOCALVERSION="-perf-g03f67ae"')
+          s = s.replace('CONFIG_LOCALVERSION_AUTO=y', '# CONFIG_LOCALVERSION_AUTO is not set')
+          extra = '# CONFIG_KSU_SUSFS is not set' + chr(10) + '# CONFIG_KPM is not set'
+          s = s.replace('CONFIG_KSU_MANUAL_HOOK=y', 'CONFIG_KSU_MANUAL_HOOK=y' + chr(10) + extra)
+          p.write_text(s, encoding='utf-8')
+          PY
+          grep -E 'KSU|LOCALVERSION' build-support/config/polaris_ksu.config | head -25
+      - name: Fetch pinned toolchain (GCC 8.4.0)
+        working-directory: ksrc
+        run: bash build-support/fetch-toolchain.sh
+      - name: Build kernel
+        working-directory: ksrc
+        run: |
+          set -e
+          ROOT=$PWD
+          TC=$ROOT/.toolchains/aarch64--glibc--stable-2020.02-1/bin/aarch64-linux-
+          $TC"gcc" -dumpversion
+          mkdir -p out dist
+          cp build-support/config/polaris_ksu.config out/.config
+          export KBUILD_BUILD_USER=polaris KBUILD_BUILD_HOST=builder KBUILD_BUILD_VERSION=1
+          export KBUILD_BUILD_TIMESTAMP='Wed Oct 14 11:51:01 CST 2026'
+          export LC_ALL=C
+          MAKEFLAGS_ALL="-C $ROOT O=$ROOT/out ARCH=arm64 CROSS_COMPILE=$TC"
+          make -C "$ROOT" O="$ROOT/out" ARCH=arm64 CROSS_COMPILE="$TC" CC="$TC"gcc HOSTCFLAGS=-fcommon olddefconfig
+          grep -E '^CONFIG_KSU|^# CONFIG_KSU|CONFIG_LOCALVERSION|CONFIG_KPROBES' out/.config
+          make -C "$ROOT" O="$ROOT/out" ARCH=arm64 CROSS_COMPILE="$TC" CC="$TC"gcc HOSTCFLAGS=-fcommon -j"$(nproc)" security/selinux/
+          make -C "$ROOT" O="$ROOT/out" ARCH=arm64 CROSS_COMPILE="$TC" CC="$TC"gcc HOSTCFLAGS=-fcommon -j"$(nproc)" 2>&1 | tail -100
+          ls -l out/arch/arm64/boot/Image.gz-dtb
+          cp out/arch/arm64/boot/Image.gz-dtb dist/Image.gz-dtb
+          cp out/.config dist/kernel.config
+          (cd dist && sha256sum Image.gz-dtb kernel.config > SHA256SUMS)
+      - uses: actions/upload-artifact@v4
+        with:
+          name: polaris-sukisu-nova
+          path: ksrc/dist/*
