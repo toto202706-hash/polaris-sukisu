@@ -58,19 +58,6 @@ jobs:
           make -C "$ROOT" O="$ROOT/out" ARCH=arm64 CROSS_COMPILE="$TC" CC="$TC"gcc HOSTCFLAGS=-fcommon prepare > prepare.log 2>&1
           echo "prepare rc=$?"
           tail -5 prepare.log
-      - name: Build KSU driver first
-        working-directory: ksrc
-        run: |
-          ROOT=$PWD
-          TC=$ROOT/.toolchains/aarch64--glibc--stable-2020.02-1/bin/aarch64-linux-
-          export KBUILD_BUILD_USER=polaris KBUILD_BUILD_HOST=builder KBUILD_BUILD_VERSION=1 LC_ALL=C
-          set +e
-          make -C "$ROOT" O="$ROOT/out" ARCH=arm64 CROSS_COMPILE="$TC" CC="$TC"gcc HOSTCFLAGS=-fcommon -j"$(nproc)" kernel/kernelsu/ > ksu.log 2>&1
-          rc=$?
-          echo "ksu build rc=$rc"
-          grep -n -i -E "error:|Error [0-9]|warning:" ksu.log | head -60
-          tail -30 ksu.log
-          exit $rc
       - name: Build kernel
         working-directory: ksrc
         run: |
@@ -98,6 +85,15 @@ jobs:
           cp out/.config dist/kernel.config
           cp build.log dist/build.log
           (cd dist && sha256sum Image.gz-dtb kernel.config > SHA256SUMS)
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: build-logs
+          path: |
+            ksrc/build.log
+            ksrc/selinux.log
+            ksrc/prepare.log
+          if-no-files-found: ignore
       - uses: actions/upload-artifact@v4
         with:
           name: polaris-sukisu-nova
