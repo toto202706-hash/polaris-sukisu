@@ -83,6 +83,19 @@ p.write_text(s, encoding='utf-8')
 print('stat.c patched')
 PY
 
-echo "== 6. sanity: hook sites"
+echo "== 6. kernel_includes.h : guard static_call.h (5.10+ only)"
+python3 - <<'PY'
+import pathlib
+p = pathlib.Path('kernel/kernelsu/kernel_includes.h')
+s = p.read_text(encoding='utf-8')
+old = '#include <linux/static_call.h>'
+new = '#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 10, 0)\n#include <linux/static_call.h>\n#endif'
+assert s.count(old) == 1, 'static_call include not found'
+s = s.replace(old, new)
+p.write_text(s, encoding='utf-8')
+print('kernel_includes.h patched')
+PY
+
+echo "== 7. sanity: hook sites"
 grep -n "ksu_handle_" fs/exec.c fs/open.c fs/stat.c fs/read_write.c kernel/reboot.c drivers/input/input.c | sed "s/^/   /"
 echo "== DONE"
