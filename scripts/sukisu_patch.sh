@@ -96,6 +96,19 @@ p.write_text(s, encoding='utf-8')
 print('kernel_includes.h patched')
 PY
 
-echo "== 7. sanity: hook sites"
+echo "== 7. kernel_compat.h : KPM is 5.10+ only (guard mis-set to 4.4)"
+python3 - <<'PY'
+import pathlib
+p = pathlib.Path('kernel/kernelsu/kernel_compat.h')
+s = p.read_text(encoding='utf-8')
+old = '#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 4, 0)\n#define KSU_CAN_USE_KPM\n#endif'
+new = '#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 10, 0) && defined(CONFIG_KPM)\n#define KSU_CAN_USE_KPM\n#endif'
+assert s.count(old) == 1, 'KPM guard not found'
+s = s.replace(old, new)
+p.write_text(s, encoding='utf-8')
+print('kernel_compat.h patched')
+PY
+
+echo "== 8. sanity: hook sites"
 grep -n "ksu_handle_" fs/exec.c fs/open.c fs/stat.c fs/read_write.c kernel/reboot.c drivers/input/input.c | sed "s/^/   /"
 echo "== DONE"
