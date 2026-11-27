@@ -1,4 +1,4 @@
-﻿name: build-polaris-ksu
+name: build-polaris-ksu
 on:
   workflow_dispatch:
 env:
@@ -60,7 +60,9 @@ jobs:
           set -o pipefail
           cd ksrc
           export PATH=$GITHUB_WORKSPACE/tc/clang/bin:$PATH
-          make -j$(nproc) O=out ARCH=arm64 CC=clang CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=aarch64-linux-gnu- Image.gz-dtb 2>&1 | tee ../build.log | tail -150
+          make -j$(nproc) O=out ARCH=arm64 CC=clang CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=aarch64-linux-gnu- \
+            HOSTCC=gcc HOSTCXX=g++ HOSTCFLAGS="-Wall -Wmissing-prototypes -Wstrict-prototypes -O2 -fomit-frame-pointer -std=gnu89 -fcommon" \
+            Image.gz-dtb 2>&1 | tee ../build.log | tail -150
           ls -la out/arch/arm64/boot/
       - name: Upload build log on failure
         if: failure()
