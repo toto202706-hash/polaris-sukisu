@@ -109,6 +109,42 @@ p.write_text(s, encoding='utf-8')
 print('kernel_compat.h patched')
 PY
 
-echo "== 8. sanity: hook sites"
+echo "== 8. kvcalloc + sched/signal.h compat for 4.9"
+python3 - <<'PY'
+import pathlib
+
+p = pathlib.Path('kernel/kernelsu/kernel_compat.h')
+s = p.read_text(encoding='utf-8')
+old = "#define kvfree ksu_kvfree\n#endif"
+kv = """#define kvfree ksu_kvfree
+static inline void *ksu_kvcalloc(size_t n, size_t size, gfp_t flags)
+{
+\tvoid *buf = ksu_kvmalloc_array(n, size, flags);
+\tif (buf)
+\t\t__builtin_memset(buf, 0, n * size);
+\treturn buf;
+}
+#define kvcalloc ksu_kvcalloc
+#endif"""
+assert s.count(old) == 1, 'kvfree anchor not found'
+s = s.replace(old, kv)
+p.write_text(s, encoding='utf-8')
+
+p2 = pathlib.Path('kernel/kernelsu/infra/symbol_resolver.c')
+s2 = p2.read_text(encoding='utf-8')
+old2 = '#include <linux/sched/signal.h>'
+new2 = """#include <linux/version.h>
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 11, 0)
+#include <linux/sched/signal.h>
+#else
+#include <linux/sched.h>
+#endif"""
+assert s2.count(old2) == 1, 'signal include not found'
+s2 = s2.replace(old2, new2)
+p2.write_text(s2, encoding='utf-8')
+print('kvcalloc + signal.h patched')
+PY
+
+echo "== 9. sanity: hook sites"
 grep -n "ksu_handle_" fs/exec.c fs/open.c fs/stat.c fs/read_write.c kernel/reboot.c drivers/input/input.c | sed "s/^/   /"
 echo "== DONE"
