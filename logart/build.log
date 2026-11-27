@@ -1,20 +1,22 @@
 make[1]: Entering directory '/home/runner/work/polaris-sukisu/polaris-sukisu/ksrc/out'
+  HOSTCC  scripts/basic/fixdep
   GEN     ./Makefile
+  HOSTCC  scripts/kconfig/conf.o
+  HOSTCC  scripts/kconfig/zconf.tab.o
+  HOSTLD  scripts/kconfig/conf
 scripts/kconfig/conf  --silentoldconfig Kconfig
 arch/arm64/Makefile:23: ld does not support --fix-cortex-a53-843419; kernel may be susceptible to erratum
   CHK     include/config/kernel.release
   GEN     ./Makefile
   WRAP    arch/arm64/include/generated/asm/bugs.h
-  WRAP    arch/arm64/include/generated/asm/cputime.h
   WRAP    arch/arm64/include/generated/asm/clkdev.h
+  WRAP    arch/arm64/include/generated/asm/cputime.h
   WRAP    arch/arm64/include/generated/asm/delay.h
   WRAP    arch/arm64/include/generated/asm/div64.h
   WRAP    arch/arm64/include/generated/asm/dma.h
   WRAP    arch/arm64/include/generated/asm/dma-contiguous.h
-  CHK     include/generated/uapi/linux/version.h
   WRAP    arch/arm64/include/generated/asm/early_ioremap.h
   WRAP    arch/arm64/include/generated/asm/emergency-restart.h
-  UPD     include/generated/uapi/linux/version.h
   WRAP    arch/arm64/include/generated/asm/errno.h
   WRAP    arch/arm64/include/generated/asm/hw_irq.h
   WRAP    arch/arm64/include/generated/asm/ioctl.h
@@ -25,10 +27,12 @@ arch/arm64/Makefile:23: ld does not support --fix-cortex-a53-843419; kernel may 
   WRAP    arch/arm64/include/generated/asm/kmap_types.h
   WRAP    arch/arm64/include/generated/asm/kvm_para.h
   WRAP    arch/arm64/include/generated/asm/local.h
-  WRAP    arch/arm64/include/generated/asm/mcs_spinlock.h
   WRAP    arch/arm64/include/generated/asm/local64.h
+  WRAP    arch/arm64/include/generated/asm/mcs_spinlock.h
+  CHK     include/generated/uapi/linux/version.h
   WRAP    arch/arm64/include/generated/asm/mm-arch-hooks.h
   WRAP    arch/arm64/include/generated/asm/mman.h
+  UPD     include/generated/uapi/linux/version.h
   WRAP    arch/arm64/include/generated/asm/msgbuf.h
   WRAP    arch/arm64/include/generated/asm/msi.h
   WRAP    arch/arm64/include/generated/asm/mutex.h
@@ -36,7 +40,6 @@ arch/arm64/Makefile:23: ld does not support --fix-cortex-a53-843419; kernel may 
   WRAP    arch/arm64/include/generated/asm/preempt.h
   WRAP    arch/arm64/include/generated/asm/resource.h
   WRAP    arch/arm64/include/generated/asm/rwsem.h
-  HOSTCC  scripts/basic/fixdep
   WRAP    arch/arm64/include/generated/asm/segment.h
   WRAP    arch/arm64/include/generated/asm/sembuf.h
   WRAP    arch/arm64/include/generated/asm/serial.h
@@ -52,65 +55,18 @@ arch/arm64/Makefile:23: ld does not support --fix-cortex-a53-843419; kernel may 
   WRAP    arch/arm64/include/generated/asm/trace_clock.h
   WRAP    arch/arm64/include/generated/asm/types.h
   WRAP    arch/arm64/include/generated/asm/unaligned.h
-  WRAP    arch/arm64/include/generated/asm/user.h
   WRAP    arch/arm64/include/generated/asm/vga.h
+  WRAP    arch/arm64/include/generated/asm/user.h
+  HOSTCC  scripts/basic/fixdep
   WRAP    arch/arm64/include/generated/asm/xor.h
   WRAP    arch/arm64/include/generated/uapi/asm/kvm_para.h
-  UPD     include/config/kernel.release
   HOSTCC  scripts/basic/bin2c
-  Using .. as source for kernel
-  CHK     include/generated/utsrelease.h
-  UPD     include/generated/utsrelease.h
-  CHK     include/generated/timeconst.h
-  CC      kernel/bounds.s
   HOSTCC  scripts/dtc/dtc.o
   HOSTCC  scripts/genksyms/genksyms.o
-../kernel/bounds.c:18:2: error: unexpected token at start of statement
-        DEFINE(NR_PAGEFLAGS, __NR_PAGEFLAGS);
-        ^
-../include/linux/kbuild.h:5:25: note: expanded from macro 'DEFINE'
-        asm volatile("\n->" #sym " %0 " #val : : "i" (val))
-                        ^
-<inline asm>:2:1: note: instantiated into assembly here
-->NR_PAGEFLAGS $21 __NR_PAGEFLAGS
-^
-../kernel/bounds.c:19:2: error: unexpected token at start of statement
-        DEFINE(MAX_NR_ZONES, __MAX_NR_ZONES);
-        ^
-../include/linux/kbuild.h:5:25: note: expanded from macro 'DEFINE'
-        asm volatile("\n->" #sym " %0 " #val : : "i" (val))
-                        ^
-<inline asm>:2:1: note: instantiated into assembly here
-->MAX_NR_ZONES $3 __MAX_NR_ZONES
-^
-../kernel/bounds.c:21:2: error: unexpected token at start of statement
-        DEFINE(NR_CPUS_BITS, ilog2(CONFIG_NR_CPUS));
-        ^
-../include/linux/kbuild.h:5:25: note: expanded from macro 'DEFINE'
-        asm volatile("\n->" #sym " %0 " #val : : "i" (val))
-                        ^
-<inline asm>:2:1: note: instantiated into assembly here
-->NR_CPUS_BITS $3 ilog2(CONFIG_NR_CPUS)
-^
-../kernel/bounds.c:23:2: error: unexpected token at start of statement
-        DEFINE(SPINLOCK_SIZE, sizeof(spinlock_t));
-        ^
-../include/linux/kbuild.h:5:25: note: expanded from macro 'DEFINE'
-        asm volatile("\n->" #sym " %0 " #val : : "i" (val))
-                        ^
-<inline asm>:2:1: note: instantiated into assembly here
-->SPINLOCK_SIZE $4 sizeof(spinlock_t)
-^
-4 errors generated.
-make[2]: *** [.././Kbuild:46: kernel/bounds.s] Error 1
-make[2]: *** Waiting for unfinished jobs....
   CC      scripts/mod/empty.o
-  UPD     include/generated/timeconst.h
-make[1]: *** [/home/runner/work/polaris-sukisu/polaris-sukisu/ksrc/Makefile:1040: prepare0] Error 2
-make[1]: *** Waiting for unfinished jobs....
   HOSTCC  scripts/mod/mk_elfconfig
-  CC      scripts/mod/devicetable-offsets.s
   HOSTCC  scripts/dtc/flattree.o
+  CC      scripts/mod/devicetable-offsets.s
 ../scripts/mod/devicetable-offsets.c:10:2: error: unexpected token at start of statement
         DEVID(usb_device_id);
         ^
@@ -342,33 +298,73 @@ make[1]: *** Waiting for unfinished jobs....
 fatal error: too many errors emitted, stopping now [-ferror-limit=]
 20 errors generated.
 make[3]: *** [../scripts/Makefile.build:159: scripts/mod/devicetable-offsets.s] Error 1
-make[3]: *** Waiting for unfinished jobs....
-  HOSTCC  scripts/dtc/fstree.o
 make[2]: *** [../scripts/Makefile.build:549: scripts/mod] Error 2
+  HOSTCC  scripts/dtc/fstree.o
 make[2]: *** Waiting for unfinished jobs....
   SHIPPED scripts/genksyms/parse.tab.c
   HOSTCC  scripts/dtc/data.o
   SHIPPED scripts/genksyms/lex.lex.c
-  HOSTCC  scripts/dtc/livetree.o
   SHIPPED scripts/genksyms/keywords.hash.c
   SHIPPED scripts/genksyms/parse.tab.h
   HOSTCC  scripts/genksyms/parse.tab.o
   HOSTCC  scripts/genksyms/lex.lex.o
+  UPD     include/config/kernel.release
+  HOSTCC  scripts/dtc/livetree.o
+  Using .. as source for kernel
   HOSTCC  scripts/dtc/treesource.o
+  CHK     include/generated/utsrelease.h
+  UPD     include/generated/utsrelease.h
   HOSTCC  scripts/dtc/srcpos.o
   HOSTCC  scripts/dtc/checks.o
   HOSTCC  scripts/dtc/util.o
+  CC      kernel/bounds.s
+../kernel/bounds.c:18:2: error: unexpected token at start of statement
+        DEFINE(NR_PAGEFLAGS, __NR_PAGEFLAGS);
+        ^
+../include/linux/kbuild.h:5:25: note: expanded from macro 'DEFINE'
+        asm volatile("\n->" #sym " %0 " #val : : "i" (val))
+                        ^
+<inline asm>:2:1: note: instantiated into assembly here
+->NR_PAGEFLAGS $21 __NR_PAGEFLAGS
+^
+../kernel/bounds.c:19:2: error: unexpected token at start of statement
+        DEFINE(MAX_NR_ZONES, __MAX_NR_ZONES);
+        ^
+../include/linux/kbuild.h:5:25: note: expanded from macro 'DEFINE'
+        asm volatile("\n->" #sym " %0 " #val : : "i" (val))
+                        ^
+<inline asm>:2:1: note: instantiated into assembly here
+->MAX_NR_ZONES $3 __MAX_NR_ZONES
+^
+../kernel/bounds.c:21:2: error: unexpected token at start of statement
+        DEFINE(NR_CPUS_BITS, ilog2(CONFIG_NR_CPUS));
+        ^
+../include/linux/kbuild.h:5:25: note: expanded from macro 'DEFINE'
+        asm volatile("\n->" #sym " %0 " #val : : "i" (val))
+                        ^
+<inline asm>:2:1: note: instantiated into assembly here
+->NR_CPUS_BITS $3 ilog2(CONFIG_NR_CPUS)
+^
+../kernel/bounds.c:23:2: error: unexpected token at start of statement
+        DEFINE(SPINLOCK_SIZE, sizeof(spinlock_t));
+        ^
+../include/linux/kbuild.h:5:25: note: expanded from macro 'DEFINE'
+        asm volatile("\n->" #sym " %0 " #val : : "i" (val))
+                        ^
+<inline asm>:2:1: note: instantiated into assembly here
+->SPINLOCK_SIZE $4 sizeof(spinlock_t)
+^
+4 errors generated.
+make[2]: *** [.././Kbuild:46: kernel/bounds.s] Error 1
+make[1]: *** [/home/runner/work/polaris-sukisu/polaris-sukisu/ksrc/Makefile:1040: prepare0] Error 2
   SHIPPED scripts/dtc/dtc-lexer.lex.c
+make[1]: *** Waiting for unfinished jobs....
   SHIPPED scripts/dtc/dtc-parser.tab.h
   SHIPPED scripts/dtc/dtc-parser.tab.c
   HOSTCC  scripts/dtc/dtc-lexer.lex.o
   HOSTCC  scripts/dtc/dtc-parser.tab.o
   HOSTLD  scripts/genksyms/genksyms
   HOSTLD  scripts/dtc/dtc
-/usr/bin/ld: scripts/dtc/dtc-parser.tab.o:(.bss+0x10): multiple definition of `yylloc'; scripts/dtc/dtc-lexer.lex.o:(.bss+0x0): first defined here
-collect2: error: ld returned 1 exit status
-make[3]: *** [scripts/Makefile.host:116: scripts/dtc/dtc] Error 1
-make[2]: *** [../scripts/Makefile.build:549: scripts/dtc] Error 2
 make[1]: *** [/home/runner/work/polaris-sukisu/polaris-sukisu/ksrc/Makefile:564: scripts] Error 2
 make[1]: Leaving directory '/home/runner/work/polaris-sukisu/polaris-sukisu/ksrc/out'
 make: *** [Makefile:150: sub-make] Error 2

@@ -49,20 +49,33 @@ jobs:
           set -e
           cd ksrc
           export PATH=$GITHUB_WORKSPACE/tc/clang/bin:$PATH
-          make O=out ARCH=arm64 CC=clang CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=aarch64-linux-gnu- $DEFCONFIG
+          export CROSS_COMPILE=aarch64-linux-gnu-
+          export CLANG_TRIPLE=aarch64-linux-gnu-
+          export CC="clang --target=aarch64-linux-gnu -integrated-as"
+          make O=out ARCH=arm64 CC="$CC" $DEFCONFIG
           ARGS=""
           if [ "$WITH_KPM" = "1" ]; then ARGS="-e KPM -e KALLSYMS -e KALLSYMS_ALL"; fi
           ./scripts/config --file out/.config -e KSU -e KPROBES -e TMPFS_XATTR -e OVERLAY_FS -e SECURITY_SELINUX -d KSU_DEBUG $ARGS
-          make O=out ARCH=arm64 CC=clang CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=aarch64-linux-gnu- olddefconfig
+          make O=out ARCH=arm64 CC="$CC" olddefconfig
           grep -E 'CONFIG_KSU|CONFIG_KPM|CONFIG_KPROBES|CONFIG_TMPFS_XATTR|CONFIG_OVERLAY_FS|CONFIG_SECURITY_SELINUX=' out/.config
       - name: Build kernel
         run: |
           set -o pipefail
           cd ksrc
           export PATH=$GITHUB_WORKSPACE/tc/clang/bin:$PATH
-          make -j$(nproc) O=out ARCH=arm64 CC=clang CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=aarch64-linux-gnu- \
-            HOSTCC=gcc HOSTCXX=g++ HOSTCFLAGS="-Wall -Wmissing-prototypes -Wstrict-prototypes -O2 -fomit-frame-pointer -std=gnu89 -fcommon" \
-            Image.gz-dtb 2>&1 | tee ../build.log | tail -150
+          export CROSS_COMPILE=aarch64-linux-gnu-
+          export CLANG_TRIPLE=aarch64-linux-gnu-
+          export CC="clang --target=aarch64-linux-gnu -integrated-as"
+          export LD=aarch64-linux-gnu-ld
+          export AR=aarch64-linux-gnu-ar
+          export NM=aarch64-linux-gnu-nm
+          export OBJCOPY=aarch64-linux-gnu-objcopy
+          export OBJDUMP=aarch64-linux-gnu-objdump
+          export STRIP=aarch64-linux-gnu-strip
+          export HOSTCC=gcc
+          export HOSTCXX=g++
+          export HOSTCFLAGS="-Wall -Wmissing-prototypes -Wstrict-prototypes -O2 -fomit-frame-pointer -std=gnu89 -fcommon"
+          make -j$(nproc) O=out ARCH=arm64 CC="$CC" Image.gz-dtb 2>&1 | tee ../build.log | tail -150
           ls -la out/arch/arm64/boot/
       - name: Upload build log on failure
         if: failure()
