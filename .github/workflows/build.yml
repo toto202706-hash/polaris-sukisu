@@ -1,0 +1,88 @@
+name: build-polaris-ksu
+on:
+  workflow_dispatch:
+    inputs:
+      src_url:
+        description: kernel source url
+        default: https://github.com/MiCode/Xiaomi_Kernel_OpenSource.git
+      src_branch:
+        description: branch
+        default: polaris-o-oss
+      defconfig:
+        description: defconfig name
+        default: polaris_user_defconfig
+      ksu_branch:
+        description: SukiSU branch
+        default: builtin
+      out_name:
+        description: artifact name
+        default: boot_sukisu
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 300
+    steps:
+      - uses: actions/checkout@v4
+      - name: Free disk space
+        run: |
+          sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/lib/android/sdk/ndk /opt/hostedtoolcache/CodeQL || true
+          df -h /
+      - name: Install deps
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq build-essential bc bison flex libssl-dev zip unzip git curl python3 cpio rsync device-tree-compiler gcc-aarch64-linux-gnu
+      - name: Fetch prebuilt clang r353983c
+        run: |
+          git clone --depth 1 https://github.com/LineageOS/android_prebuilts_clang_kernel_linux-x86_clang-r353983c tc/clang -q
+          tc/clang/bin/clang --version || true
+      - name: Clone kernel source
+        run: |
+          git clone --depth 1 -b ${{ inputs.src_branch }} ${{ inputs.src_url }} ksrc
+          cd ksrc && git log --oneline -1
+      - name: Integrate SukiSU driver
+        run: |
+          set -e
+          cd ksrc
+          git clone --depth 1 -b ${{ inputs.ksu_branch }} https://github.com/SukiSU-Nova/SukiSU-Nova KernelSU -q
+          cd drivers
+          ln -sf ../KernelSU/kernel kernelsu
+          grep -q kernelsu Makefile || printf '\nobj-$(CONFIG_KSU) += kernelsu/\n' >> Makefile
+          grep -q 'drivers/kernelsu/Kconfig' Kconfig || sed -i '/endmenu/i source "drivers/kernelsu/Kconfig"' Kconfig
+          tail -3 Makefile
+          cd $GITHUB_WORKSPACE/ksrc
+          curl -fsSL -o /tmp/ksu49.patch https://raw.githubusercontent.com/SukiSU-Nova/SukiSU_patch/main/4.9/4.9_syscall_hooks.patch
+          patch -p1 --no-backup-if-mismatch < /tmp/ksu49.patch || patch -p1 --dry-run < /tmp/ksu49.patch
+          echo INTEGRATION_OK
+      - name: Configure
+        run: |
+          set -e
+          cd ksrc
+          export PATH=$GITHUB_WORKSPACE/tc/clang/bin:$PATH
+          make O=out ARCH=arm64 CC=clang CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=aarch64-linux-gnu- ${{ inputs.defconfig }}
+          ./scripts/config --file out/.config -e KSU -e KSU_MANUAL_HOOK -e KPROBES -e TMPFS_XATTR -e OVERLAY_FS -e SECURITY_SELINUX -d KSU_DEBUG
+          make O=out ARCH=arm64 CC=clang CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=aarch64-linux-gnu- olddefconfig
+          grep -E 'CONFIG_KSU|CONFIG_KPROBES|CONFIG_TMPFS_XATTR' out/.config
+      - name: Build kernel
+        run: |
+          set -o pipefail
+          cd ksrc
+          export PATH=$GITHUB_WORKSPACE/tc/clang/bin:$PATH
+          make -j$(nproc) O=out ARCH=arm64 CC=clang CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=aarch64-linux-gnu- Image.gz 2>&1 | tail -80
+          ls -la out/arch/arm64/boot/
+      - name: Repack boot.img
+        run: |
+          set -e
+          curl -fL -o magisk.apk https://github.com/topjohnwu/Magisk/releases/download/v31.1/Magisk-v31.1.apk
+          mkdir -p mbt && unzip -o -j magisk.apk 'lib/x86_64/libmagiskboot.so' -d mbt
+          chmod +x mbt/libmagiskboot.so
+          mkdir -p work && cd work
+          ../mbt/libmagiskboot.so unpack ../boot_stock.img || true
+          ls -la
+          cp ../ksrc/out/arch/arm64/boot/Image kernel
+          ../mbt/libmagiskboot.so repack ../boot_stock.img ../${{ inputs.out_name }}.img || ../mbt/libmagiskboot.so repack -n ../boot_stock.img ../${{ inputs.out_name }}.img
+          ls -la ../${{ inputs.out_name }}.img
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.out_name }}
+          path: ${{ inputs.out_name }}.img
+          if-no-files-found: error
