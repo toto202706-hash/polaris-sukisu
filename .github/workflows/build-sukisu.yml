@@ -55,6 +55,9 @@ jobs:
           export LC_ALL=C
           make -C "$ROOT" O="$ROOT/out" ARCH=arm64 CROSS_COMPILE="$TC" CC="$TC"gcc HOSTCFLAGS=-fcommon olddefconfig
           grep -E '^CONFIG_KSU|^# CONFIG_KSU|CONFIG_LOCALVERSION|CONFIG_KPROBES|CONFIG_EXT4_FS=' out/.config
+          make -C "$ROOT" O="$ROOT/out" ARCH=arm64 CROSS_COMPILE="$TC" CC="$TC"gcc HOSTCFLAGS=-fcommon prepare > prepare.log 2>&1
+          echo "prepare rc=$?"
+          tail -5 prepare.log
       - name: Build KSU driver first
         working-directory: ksrc
         run: |
