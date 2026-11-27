@@ -28,6 +28,10 @@ jobs:
           git clone --depth 1 https://github.com/LineageOS/android_prebuilts_clang_kernel_linux-x86_clang-r416183b tc/clang -q \
             || git clone --depth 1 https://github.com/Jacksonzwang/android_prebuilts_clang_kernel_linux-x86_clang-r383902 tc/clang -q
           tc/clang/bin/clang --version
+          mkdir -p tc/wrap
+          printf '#!/bin/sh\nexec %s/tc/clang/bin/clang --target=aarch64-linux-gnu -integrated-as "$@"\n' "$GITHUB_WORKSPACE" > tc/wrap/aarch64-linux-gnu-clang
+          chmod +x tc/wrap/aarch64-linux-gnu-clang
+          tc/wrap/aarch64-linux-gnu-clang --version | head -2
       - name: Clone kernel source
         run: |
           git clone --depth 1 -b $SRC_BRANCH $SRC_URL ksrc
@@ -51,12 +55,14 @@ jobs:
           export PATH=$GITHUB_WORKSPACE/tc/clang/bin:$PATH
           export CROSS_COMPILE=aarch64-linux-gnu-
           export CLANG_TRIPLE=aarch64-linux-gnu-
-          export CC="clang --target=aarch64-linux-gnu -integrated-as"
-          make O=out ARCH=arm64 CC="$CC" $DEFCONFIG
+          export PATH=$GITHUB_WORKSPACE/tc/wrap:$PATH
+          export CC=aarch64-linux-gnu-clang
+          export HOSTCC=gcc
+          make O=out ARCH=arm64 $DEFCONFIG
           ARGS=""
           if [ "$WITH_KPM" = "1" ]; then ARGS="-e KPM -e KALLSYMS -e KALLSYMS_ALL"; fi
           ./scripts/config --file out/.config -e KSU -e KPROBES -e TMPFS_XATTR -e OVERLAY_FS -e SECURITY_SELINUX -d KSU_DEBUG $ARGS
-          make O=out ARCH=arm64 CC="$CC" olddefconfig
+          make O=out ARCH=arm64 olddefconfig
           grep -E 'CONFIG_KSU|CONFIG_KPM|CONFIG_KPROBES|CONFIG_TMPFS_XATTR|CONFIG_OVERLAY_FS|CONFIG_SECURITY_SELINUX=' out/.config
       - name: Build kernel
         run: |
@@ -65,7 +71,8 @@ jobs:
           export PATH=$GITHUB_WORKSPACE/tc/clang/bin:$PATH
           export CROSS_COMPILE=aarch64-linux-gnu-
           export CLANG_TRIPLE=aarch64-linux-gnu-
-          export CC="clang --target=aarch64-linux-gnu -integrated-as"
+          export PATH=$GITHUB_WORKSPACE/tc/wrap:$PATH
+          export CC=aarch64-linux-gnu-clang
           export LD=aarch64-linux-gnu-ld
           export AR=aarch64-linux-gnu-ar
           export NM=aarch64-linux-gnu-nm
@@ -75,7 +82,7 @@ jobs:
           export HOSTCC=gcc
           export HOSTCXX=g++
           export HOSTCFLAGS="-Wall -Wmissing-prototypes -Wstrict-prototypes -O2 -fomit-frame-pointer -std=gnu89 -fcommon"
-          make -j$(nproc) O=out ARCH=arm64 CC="$CC" Image.gz-dtb 2>&1 | tee ../build.log | tail -150
+          make -j$(nproc) O=out ARCH=arm64 Image.gz-dtb 2>&1 | tee ../build.log | tail -150
           ls -la out/arch/arm64/boot/
       - name: Upload build log on failure
         if: failure()

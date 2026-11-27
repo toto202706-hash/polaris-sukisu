@@ -1,11 +1,6 @@
 make[1]: Entering directory '/home/runner/work/polaris-sukisu/polaris-sukisu/ksrc/out'
-  HOSTCC  scripts/basic/fixdep
   GEN     ./Makefile
-  HOSTCC  scripts/kconfig/conf.o
-  HOSTCC  scripts/kconfig/zconf.tab.o
-  HOSTLD  scripts/kconfig/conf
 scripts/kconfig/conf  --silentoldconfig Kconfig
-arch/arm64/Makefile:23: ld does not support --fix-cortex-a53-843419; kernel may be susceptible to erratum
   CHK     include/config/kernel.release
   GEN     ./Makefile
   WRAP    arch/arm64/include/generated/asm/bugs.h
@@ -23,16 +18,16 @@ arch/arm64/Makefile:23: ld does not support --fix-cortex-a53-843419; kernel may 
   WRAP    arch/arm64/include/generated/asm/ioctls.h
   WRAP    arch/arm64/include/generated/asm/ipcbuf.h
   WRAP    arch/arm64/include/generated/asm/irq_regs.h
-  WRAP    arch/arm64/include/generated/asm/kdebug.h
   WRAP    arch/arm64/include/generated/asm/kmap_types.h
+  WRAP    arch/arm64/include/generated/asm/kdebug.h
   WRAP    arch/arm64/include/generated/asm/kvm_para.h
   WRAP    arch/arm64/include/generated/asm/local.h
   WRAP    arch/arm64/include/generated/asm/local64.h
-  WRAP    arch/arm64/include/generated/asm/mcs_spinlock.h
   CHK     include/generated/uapi/linux/version.h
+  WRAP    arch/arm64/include/generated/asm/mcs_spinlock.h
+  UPD     include/generated/uapi/linux/version.h
   WRAP    arch/arm64/include/generated/asm/mm-arch-hooks.h
   WRAP    arch/arm64/include/generated/asm/mman.h
-  UPD     include/generated/uapi/linux/version.h
   WRAP    arch/arm64/include/generated/asm/msgbuf.h
   WRAP    arch/arm64/include/generated/asm/msi.h
   WRAP    arch/arm64/include/generated/asm/mutex.h
@@ -54,19 +49,20 @@ arch/arm64/Makefile:23: ld does not support --fix-cortex-a53-843419; kernel may 
   WRAP    arch/arm64/include/generated/asm/termios.h
   WRAP    arch/arm64/include/generated/asm/trace_clock.h
   WRAP    arch/arm64/include/generated/asm/types.h
-  WRAP    arch/arm64/include/generated/asm/unaligned.h
-  WRAP    arch/arm64/include/generated/asm/vga.h
-  WRAP    arch/arm64/include/generated/asm/user.h
   HOSTCC  scripts/basic/fixdep
+  WRAP    arch/arm64/include/generated/asm/unaligned.h
+  WRAP    arch/arm64/include/generated/asm/user.h
+  WRAP    arch/arm64/include/generated/asm/vga.h
   WRAP    arch/arm64/include/generated/asm/xor.h
   WRAP    arch/arm64/include/generated/uapi/asm/kvm_para.h
   HOSTCC  scripts/basic/bin2c
   HOSTCC  scripts/dtc/dtc.o
-  HOSTCC  scripts/genksyms/genksyms.o
   CC      scripts/mod/empty.o
+  HOSTCC  scripts/genksyms/genksyms.o
   HOSTCC  scripts/mod/mk_elfconfig
   HOSTCC  scripts/dtc/flattree.o
   CC      scripts/mod/devicetable-offsets.s
+  UPD     include/config/kernel.release
 ../scripts/mod/devicetable-offsets.c:10:2: error: unexpected token at start of statement
         DEVID(usb_device_id);
         ^
@@ -77,7 +73,7 @@ arch/arm64/Makefile:23: ld does not support --fix-cortex-a53-843419; kernel may 
         asm volatile("\n->" #sym " %0 " #val : : "i" (val))
                         ^
 <inline asm>:2:1: note: instantiated into assembly here
-->SIZE_usb_device_id $32 sizeof(struct usb_device_id)
+->SIZE_usb_device_id 32 sizeof(struct usb_device_id)
 ^
 ../scripts/mod/devicetable-offsets.c:11:2: error: unexpected token at start of statement
         DEVID_FIELD(usb_device_id, match_flags);
@@ -89,7 +85,7 @@ arch/arm64/Makefile:23: ld does not support --fix-cortex-a53-843419; kernel may 
         asm volatile("\n->" #sym " %0 " #val : : "i" (val))
                         ^
 <inline asm>:2:1: note: instantiated into assembly here
-->OFF_usb_device_id_match_flags $0 offsetof(struct usb_device_id, match_flags)
+->OFF_usb_device_id_match_flags 0 offsetof(struct usb_device_id, match_flags)
 ^
 ../scripts/mod/devicetable-offsets.c:12:2: error: unexpected token at start of statement
         DEVID_FIELD(usb_device_id, idVendor);
@@ -101,7 +97,7 @@ arch/arm64/Makefile:23: ld does not support --fix-cortex-a53-843419; kernel may 
         asm volatile("\n->" #sym " %0 " #val : : "i" (val))
                         ^
 <inline asm>:2:1: note: instantiated into assembly here
-->OFF_usb_device_id_idVendor $2 offsetof(struct usb_device_id, idVendor)
+->OFF_usb_device_id_idVendor 2 offsetof(struct usb_device_id, idVendor)
 ^
 ../scripts/mod/devicetable-offsets.c:13:2: error: unexpected token at start of statement
         DEVID_FIELD(usb_device_id, idProduct);
@@ -113,7 +109,7 @@ arch/arm64/Makefile:23: ld does not support --fix-cortex-a53-843419; kernel may 
         asm volatile("\n->" #sym " %0 " #val : : "i" (val))
                         ^
 <inline asm>:2:1: note: instantiated into assembly here
-->OFF_usb_device_id_idProduct $4 offsetof(struct usb_device_id, idProduct)
+->OFF_usb_device_id_idProduct 4 offsetof(struct usb_device_id, idProduct)
 ^
 ../scripts/mod/devicetable-offsets.c:14:2: error: unexpected token at start of statement
         DEVID_FIELD(usb_device_id, bcdDevice_lo);
@@ -125,7 +121,7 @@ arch/arm64/Makefile:23: ld does not support --fix-cortex-a53-843419; kernel may 
         asm volatile("\n->" #sym " %0 " #val : : "i" (val))
                         ^
 <inline asm>:2:1: note: instantiated into assembly here
-->OFF_usb_device_id_bcdDevice_lo $6 offsetof(struct usb_device_id, bcdDevice_lo)
+->OFF_usb_device_id_bcdDevice_lo 6 offsetof(struct usb_device_id, bcdDevice_lo)
 ^
 ../scripts/mod/devicetable-offsets.c:15:2: error: unexpected token at start of statement
         DEVID_FIELD(usb_device_id, bcdDevice_hi);
@@ -137,7 +133,7 @@ arch/arm64/Makefile:23: ld does not support --fix-cortex-a53-843419; kernel may 
         asm volatile("\n->" #sym " %0 " #val : : "i" (val))
                         ^
 <inline asm>:2:1: note: instantiated into assembly here
-->OFF_usb_device_id_bcdDevice_hi $8 offsetof(struct usb_device_id, bcdDevice_hi)
+->OFF_usb_device_id_bcdDevice_hi 8 offsetof(struct usb_device_id, bcdDevice_hi)
 ^
 ../scripts/mod/devicetable-offsets.c:16:2: error: unexpected token at start of statement
         DEVID_FIELD(usb_device_id, bDeviceClass);
@@ -149,7 +145,7 @@ arch/arm64/Makefile:23: ld does not support --fix-cortex-a53-843419; kernel may 
         asm volatile("\n->" #sym " %0 " #val : : "i" (val))
                         ^
 <inline asm>:2:1: note: instantiated into assembly here
-->OFF_usb_device_id_bDeviceClass $10 offsetof(struct usb_device_id, bDeviceClass)
+->OFF_usb_device_id_bDeviceClass 10 offsetof(struct usb_device_id, bDeviceClass)
 ^
 ../scripts/mod/devicetable-offsets.c:17:2: error: unexpected token at start of statement
         DEVID_FIELD(usb_device_id, bDeviceSubClass);
@@ -161,7 +157,7 @@ arch/arm64/Makefile:23: ld does not support --fix-cortex-a53-843419; kernel may 
         asm volatile("\n->" #sym " %0 " #val : : "i" (val))
                         ^
 <inline asm>:2:1: note: instantiated into assembly here
-->OFF_usb_device_id_bDeviceSubClass $11 offsetof(struct usb_device_id, bDeviceSubClass)
+->OFF_usb_device_id_bDeviceSubClass 11 offsetof(struct usb_device_id, bDeviceSubClass)
 ^
 ../scripts/mod/devicetable-offsets.c:18:2: error: unexpected token at start of statement
         DEVID_FIELD(usb_device_id, bDeviceProtocol);
@@ -173,7 +169,7 @@ arch/arm64/Makefile:23: ld does not support --fix-cortex-a53-843419; kernel may 
         asm volatile("\n->" #sym " %0 " #val : : "i" (val))
                         ^
 <inline asm>:2:1: note: instantiated into assembly here
-->OFF_usb_device_id_bDeviceProtocol $12 offsetof(struct usb_device_id, bDeviceProtocol)
+->OFF_usb_device_id_bDeviceProtocol 12 offsetof(struct usb_device_id, bDeviceProtocol)
 ^
 ../scripts/mod/devicetable-offsets.c:19:2: error: unexpected token at start of statement
         DEVID_FIELD(usb_device_id, bInterfaceClass);
@@ -185,7 +181,7 @@ arch/arm64/Makefile:23: ld does not support --fix-cortex-a53-843419; kernel may 
         asm volatile("\n->" #sym " %0 " #val : : "i" (val))
                         ^
 <inline asm>:2:1: note: instantiated into assembly here
-->OFF_usb_device_id_bInterfaceClass $13 offsetof(struct usb_device_id, bInterfaceClass)
+->OFF_usb_device_id_bInterfaceClass 13 offsetof(struct usb_device_id, bInterfaceClass)
 ^
 ../scripts/mod/devicetable-offsets.c:20:2: error: unexpected token at start of statement
         DEVID_FIELD(usb_device_id, bInterfaceSubClass);
@@ -197,7 +193,7 @@ arch/arm64/Makefile:23: ld does not support --fix-cortex-a53-843419; kernel may 
         asm volatile("\n->" #sym " %0 " #val : : "i" (val))
                         ^
 <inline asm>:2:1: note: instantiated into assembly here
-->OFF_usb_device_id_bInterfaceSubClass $14 offsetof(struct usb_device_id, bInterfaceSubClass)
+->OFF_usb_device_id_bInterfaceSubClass 14 offsetof(struct usb_device_id, bInterfaceSubClass)
 ^
 ../scripts/mod/devicetable-offsets.c:21:2: error: unexpected token at start of statement
         DEVID_FIELD(usb_device_id, bInterfaceProtocol);
@@ -209,7 +205,7 @@ arch/arm64/Makefile:23: ld does not support --fix-cortex-a53-843419; kernel may 
         asm volatile("\n->" #sym " %0 " #val : : "i" (val))
                         ^
 <inline asm>:2:1: note: instantiated into assembly here
-->OFF_usb_device_id_bInterfaceProtocol $15 offsetof(struct usb_device_id, bInterfaceProtocol)
+->OFF_usb_device_id_bInterfaceProtocol 15 offsetof(struct usb_device_id, bInterfaceProtocol)
 ^
 ../scripts/mod/devicetable-offsets.c:22:2: error: unexpected token at start of statement
         DEVID_FIELD(usb_device_id, bInterfaceNumber);
@@ -221,7 +217,7 @@ arch/arm64/Makefile:23: ld does not support --fix-cortex-a53-843419; kernel may 
         asm volatile("\n->" #sym " %0 " #val : : "i" (val))
                         ^
 <inline asm>:2:1: note: instantiated into assembly here
-->OFF_usb_device_id_bInterfaceNumber $16 offsetof(struct usb_device_id, bInterfaceNumber)
+->OFF_usb_device_id_bInterfaceNumber 16 offsetof(struct usb_device_id, bInterfaceNumber)
 ^
 ../scripts/mod/devicetable-offsets.c:24:2: error: unexpected token at start of statement
         DEVID(hid_device_id);
@@ -233,7 +229,7 @@ arch/arm64/Makefile:23: ld does not support --fix-cortex-a53-843419; kernel may 
         asm volatile("\n->" #sym " %0 " #val : : "i" (val))
                         ^
 <inline asm>:2:1: note: instantiated into assembly here
-->SIZE_hid_device_id $24 sizeof(struct hid_device_id)
+->SIZE_hid_device_id 24 sizeof(struct hid_device_id)
 ^
 ../scripts/mod/devicetable-offsets.c:25:2: error: unexpected token at start of statement
         DEVID_FIELD(hid_device_id, bus);
@@ -245,7 +241,7 @@ arch/arm64/Makefile:23: ld does not support --fix-cortex-a53-843419; kernel may 
         asm volatile("\n->" #sym " %0 " #val : : "i" (val))
                         ^
 <inline asm>:2:1: note: instantiated into assembly here
-->OFF_hid_device_id_bus $0 offsetof(struct hid_device_id, bus)
+->OFF_hid_device_id_bus 0 offsetof(struct hid_device_id, bus)
 ^
 ../scripts/mod/devicetable-offsets.c:26:2: error: unexpected token at start of statement
         DEVID_FIELD(hid_device_id, group);
@@ -257,9 +253,10 @@ arch/arm64/Makefile:23: ld does not support --fix-cortex-a53-843419; kernel may 
         asm volatile("\n->" #sym " %0 " #val : : "i" (val))
                         ^
 <inline asm>:2:1: note: instantiated into assembly here
-->OFF_hid_device_id_group $2 offsetof(struct hid_device_id, group)
+->OFF_hid_device_id_group 2 offsetof(struct hid_device_id, group)
 ^
-../scripts/mod/devicetable-offsets.c:27:2: error: unexpected token at start of statement
+../scripts/mod/devicetable-offsets.c:27:2: error: unexpected token at start of statement  HOSTCC  scripts/selinux/genheaders/genheaders
+
         DEVID_FIELD(hid_device_id, vendor);
         ^
 ../scripts/mod/devicetable-offsets.c:6:2: note: expanded from macro 'DEVID_FIELD'
@@ -269,7 +266,7 @@ arch/arm64/Makefile:23: ld does not support --fix-cortex-a53-843419; kernel may 
         asm volatile("\n->" #sym " %0 " #val : : "i" (val))
                         ^
 <inline asm>:2:1: note: instantiated into assembly here
-->OFF_hid_device_id_vendor $4 offsetof(struct hid_device_id, vendor)
+->OFF_hid_device_id_vendor 4 offsetof(struct hid_device_id, vendor)
 ^
 ../scripts/mod/devicetable-offsets.c:28:2: error: unexpected token at start of statement
         DEVID_FIELD(hid_device_id, product);
@@ -281,7 +278,7 @@ arch/arm64/Makefile:23: ld does not support --fix-cortex-a53-843419; kernel may 
         asm volatile("\n->" #sym " %0 " #val : : "i" (val))
                         ^
 <inline asm>:2:1: note: instantiated into assembly here
-->OFF_hid_device_id_product $8 offsetof(struct hid_device_id, product)
+->OFF_hid_device_id_product 8 offsetof(struct hid_device_id, product)
 ^
 ../scripts/mod/devicetable-offsets.c:30:2: error: unexpected token at start of statement
         DEVID(ieee1394_device_id);
@@ -293,30 +290,28 @@ arch/arm64/Makefile:23: ld does not support --fix-cortex-a53-843419; kernel may 
         asm volatile("\n->" #sym " %0 " #val : : "i" (val))
                         ^
 <inline asm>:2:1: note: instantiated into assembly here
-->SIZE_ieee1394_device_id $32 sizeof(struct ieee1394_device_id)
+->SIZE_ieee1394_device_id 32 sizeof(struct ieee1394_device_id)
 ^
 fatal error: too many errors emitted, stopping now [-ferror-limit=]
 20 errors generated.
 make[3]: *** [../scripts/Makefile.build:159: scripts/mod/devicetable-offsets.s] Error 1
 make[2]: *** [../scripts/Makefile.build:549: scripts/mod] Error 2
-  HOSTCC  scripts/dtc/fstree.o
 make[2]: *** Waiting for unfinished jobs....
+  HOSTCC  scripts/selinux/mdp/mdp
   SHIPPED scripts/genksyms/parse.tab.c
-  HOSTCC  scripts/dtc/data.o
   SHIPPED scripts/genksyms/lex.lex.c
   SHIPPED scripts/genksyms/keywords.hash.c
   SHIPPED scripts/genksyms/parse.tab.h
   HOSTCC  scripts/genksyms/parse.tab.o
-  HOSTCC  scripts/genksyms/lex.lex.o
-  UPD     include/config/kernel.release
-  HOSTCC  scripts/dtc/livetree.o
+  HOSTCC  scripts/dtc/fstree.o
   Using .. as source for kernel
-  HOSTCC  scripts/dtc/treesource.o
+  HOSTCC  scripts/genksyms/lex.lex.o
   CHK     include/generated/utsrelease.h
   UPD     include/generated/utsrelease.h
+  HOSTCC  scripts/dtc/data.o
+  HOSTCC  scripts/dtc/livetree.o
+  HOSTCC  scripts/dtc/treesource.o
   HOSTCC  scripts/dtc/srcpos.o
-  HOSTCC  scripts/dtc/checks.o
-  HOSTCC  scripts/dtc/util.o
   CC      kernel/bounds.s
 ../kernel/bounds.c:18:2: error: unexpected token at start of statement
         DEFINE(NR_PAGEFLAGS, __NR_PAGEFLAGS);
@@ -325,7 +320,7 @@ make[2]: *** Waiting for unfinished jobs....
         asm volatile("\n->" #sym " %0 " #val : : "i" (val))
                         ^
 <inline asm>:2:1: note: instantiated into assembly here
-->NR_PAGEFLAGS $21 __NR_PAGEFLAGS
+->NR_PAGEFLAGS 21 __NR_PAGEFLAGS
 ^
 ../kernel/bounds.c:19:2: error: unexpected token at start of statement
         DEFINE(MAX_NR_ZONES, __MAX_NR_ZONES);
@@ -334,7 +329,7 @@ make[2]: *** Waiting for unfinished jobs....
         asm volatile("\n->" #sym " %0 " #val : : "i" (val))
                         ^
 <inline asm>:2:1: note: instantiated into assembly here
-->MAX_NR_ZONES $3 __MAX_NR_ZONES
+->MAX_NR_ZONES 3 __MAX_NR_ZONES
 ^
 ../kernel/bounds.c:21:2: error: unexpected token at start of statement
         DEFINE(NR_CPUS_BITS, ilog2(CONFIG_NR_CPUS));
@@ -343,7 +338,7 @@ make[2]: *** Waiting for unfinished jobs....
         asm volatile("\n->" #sym " %0 " #val : : "i" (val))
                         ^
 <inline asm>:2:1: note: instantiated into assembly here
-->NR_CPUS_BITS $3 ilog2(CONFIG_NR_CPUS)
+->NR_CPUS_BITS 3 ilog2(CONFIG_NR_CPUS)
 ^
 ../kernel/bounds.c:23:2: error: unexpected token at start of statement
         DEFINE(SPINLOCK_SIZE, sizeof(spinlock_t));
@@ -352,19 +347,25 @@ make[2]: *** Waiting for unfinished jobs....
         asm volatile("\n->" #sym " %0 " #val : : "i" (val))
                         ^
 <inline asm>:2:1: note: instantiated into assembly here
-->SPINLOCK_SIZE $4 sizeof(spinlock_t)
+->SPINLOCK_SIZE 4 sizeof(spinlock_t)
 ^
 4 errors generated.
 make[2]: *** [.././Kbuild:46: kernel/bounds.s] Error 1
 make[1]: *** [/home/runner/work/polaris-sukisu/polaris-sukisu/ksrc/Makefile:1040: prepare0] Error 2
-  SHIPPED scripts/dtc/dtc-lexer.lex.c
+  HOSTCC  scripts/dtc/checks.o
 make[1]: *** Waiting for unfinished jobs....
+  HOSTCC  scripts/dtc/util.o
+  SHIPPED scripts/dtc/dtc-lexer.lex.c
   SHIPPED scripts/dtc/dtc-parser.tab.h
   SHIPPED scripts/dtc/dtc-parser.tab.c
   HOSTCC  scripts/dtc/dtc-lexer.lex.o
-  HOSTCC  scripts/dtc/dtc-parser.tab.o
   HOSTLD  scripts/genksyms/genksyms
+  HOSTCC  scripts/dtc/dtc-parser.tab.o
   HOSTLD  scripts/dtc/dtc
+/usr/bin/ld: scripts/dtc/dtc-parser.tab.o:(.bss+0x10): multiple definition of `yylloc'; scripts/dtc/dtc-lexer.lex.o:(.bss+0x0): first defined here
+collect2: error: ld returned 1 exit status
+make[3]: *** [scripts/Makefile.host:116: scripts/dtc/dtc] Error 1
+make[2]: *** [../scripts/Makefile.build:549: scripts/dtc] Error 2
 make[1]: *** [/home/runner/work/polaris-sukisu/polaris-sukisu/ksrc/Makefile:564: scripts] Error 2
 make[1]: Leaving directory '/home/runner/work/polaris-sukisu/polaris-sukisu/ksrc/out'
 make: *** [Makefile:150: sub-make] Error 2
