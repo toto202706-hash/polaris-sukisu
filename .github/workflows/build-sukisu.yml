@@ -51,7 +51,6 @@ jobs:
           ROOT=$PWD
           TC=$ROOT/.toolchains/aarch64--glibc--stable-2020.02-1/bin/aarch64-linux-
           $TC"gcc" -dumpversion
-          : > .scmversion
           mkdir -p out dist
           cp build-support/config/polaris_ksu.config out/.config
           export KBUILD_BUILD_USER=polaris KBUILD_BUILD_HOST=builder KBUILD_BUILD_VERSION=1
